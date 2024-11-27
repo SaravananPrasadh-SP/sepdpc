@@ -8,17 +8,19 @@
 This is not part of the core Starburst product and is not covered by Starburst support agreements. 
 It is a community developed set of scripts to make your life easier when managing Starburst Enterprise  Data Products.
 
+This is a fork from https://github.com/ottensa/sepdpc adding options to filter on Data Products a domain and/or a catalog.
+
 ## Introduction
 This Python package is a CLI for managing Starburst Enterprise Data Products in a local repository.
 
-The motivation behind this project comes from the demand I see at customers to manage Starburst Enterprise Data Products in git.
+The motivation behind this project comes from the demand from customers to manage Starburst Enterprise Data Products in git, or to move/update Data Products between different clusters.
 
 ## Installation
 Releases are not yet available on PyPI, but you can install using pip nonetheless:
 
 ```shell
 python -m pip install -U pip
-python -m pip install -U pip install git+https://github.com/ottensa/sepdpc.git
+python -m pip install -U pip install git+https://github.com/victorcouste/sepdpc.git
 ```
 
 ## Usage
@@ -63,6 +65,12 @@ $ sepdpc configure --help
 │                         [default: None]                                   │
 │                         [required]                                        │
 │ *  --token        TEXT  The token used for authentication                 │
+│                         [default: None]                                   │
+│                         [required]                                        │
+│ *  --catalog      TEXT  The catalog to filter on, "none" for no filter    │ 
+│                         [default: None]                                   │
+│                         [required]                                        │
+│ *  --domain       TEXT  The domain to filter on,  "none" for no filter    │
 │                         [default: None]                                   │
 │                         [required]                                        │
 │    --help               Show this message and exit.                       │

@@ -59,7 +59,6 @@ class ProductStruct(InterstellarBaseModel):
     samples: Optional[list[SampleQuery]] = None
     datasets: list[DatasetStruct] = None
 
-
 class RepositoryDiff(BaseModel):
     deleted_domains: List[DomainStruct]
     created_domains: List[DomainStruct]
@@ -75,7 +74,7 @@ class Repository(BaseModel):
     products: List[ProductStruct]
 
 
-def from_server(server_client: SepClient) -> Repository:
+def from_server(server_client: SepClient, domain_filter: str, catalog_filter: str) -> Repository:
     """Laden der Domains und der Produkte von SEP und in die Repository Struktur bringen"""
     dpc = server_client.data_product_service()
     dc = server_client.domain_service()
@@ -86,45 +85,52 @@ def from_server(server_client: SepClient) -> Repository:
     domains = [DomainStruct(**domain.model_dump()) for domain in sep_domains]
     products = []
 
+    if domain_filter!="none": domainID=next(d.id for d in domains if d.name == domain_filter)
+
     for dp in sep_products:
-        tags = dpc.get_tags(dp.id)
-        samples = dpc.get_samples(dp.id)
-        datasets = []
-        for view in dp.views:
-            datasets.append(
-                DatasetStruct(
-                    name=view.name,
-                    query=view.definitionQuery,
-                    summary=view.description,
-                    columns=view.columns
-                )
-            )
 
-        for view in dp.materializedViews:
-            datasets.append(
-                DatasetStruct(
-                    name=view.name,
-                    query=view.definitionQuery,
-                    summary=view.description,
-                    columns=view.columns,
-                    materialization=view.definitionProperties
-                )
-            )
+        if catalog_filter == "none" or dp.catalogName == catalog_filter:
 
-        product = ProductStruct(
-            id=dp.id,
-            name=dp.name,
-            desc=dp.description,
-            summary=dp.summary,
-            catalog=dp.catalogName,
-            domain=next(d.name for d in domains if d.id == dp.dataDomainId),
-            owner=dp.owners,
-            links=dp.relevantLinks,
-            tags=[tag.value for tag in tags],
-            samples=samples,
-            datasets=datasets
-        )
-        products.append(product)
+            if domain_filter == "none" or dp.dataDomainId == domainID:
+
+                tags = dpc.get_tags(dp.id)
+                samples = dpc.get_samples(dp.id)
+                datasets = []
+                for view in dp.views:
+                    datasets.append(
+                        DatasetStruct(
+                            name=view.name,
+                            query=view.definitionQuery,
+                            summary=view.description,
+                            columns=view.columns
+                        )
+                    )
+
+                for view in dp.materializedViews:
+                    datasets.append(
+                        DatasetStruct(
+                            name=view.name,
+                            query=view.definitionQuery,
+                            summary=view.description,
+                            columns=view.columns,
+                            materialization=view.definitionProperties
+                        )
+                    )
+
+                product = ProductStruct(
+                    id=dp.id,
+                    name=dp.name,
+                    desc=dp.description,
+                    summary=dp.summary,
+                    catalog=dp.catalogName,
+                    domain=next(d.name for d in domains if d.id == dp.dataDomainId),
+                    owner=dp.owners,
+                    links=dp.relevantLinks,
+                    tags=[tag.value for tag in tags],
+                    samples=samples,
+                    datasets=datasets
+                )
+                products.append(product)
 
     return Repository(domains=domains, products=products)
 
@@ -317,7 +323,10 @@ def _persist_data_product(path: Path, data_product: ProductStruct):
         yaml.dump(metadata, f, sort_keys=False)
 
     readme_path = dp_path / "readme.md"
-    readme_path.write_text(data_product.desc, encoding='utf-8')
+    if not isinstance(data_product.desc, str):
+        readme_path.write_text("")
+    else:
+        readme_path.write_text(data_product.desc, encoding='utf-8')
 
     _persist_datasets(dp_path, data_product.datasets)
     _persist_samples(dp_path, data_product.samples)
@@ -383,43 +392,44 @@ def _upsert_data_product(dpc: DataProductService, product_struct: ProductStruct,
     dpc.publish(data_product.id)
 
 
-def publish(server_client: SepClient, repo: Repository):
+def publish(server_client: SepClient, domain_filter: str, catalog_filter: str, repo: Repository):
     """Auf den Server schieben"""
     validate(repo)
-    remote_repo = from_server(server_client)
+    remote_repo = from_server(server_client, domain_filter, catalog_filter)
 
     # mapping von domain name auf domain id
     domain_mapping = dict([(domain.name, domain.id) for domain in remote_repo.domains])
 
     dpc = server_client.data_product_service()
-    dc = server_client.domain_service()
+    #dc = server_client.domain_service()
 
     delta = diff(remote_repo, repo)
+    
     # 1. delete products
     for dp in delta.deleted_products:
         dpc.delete(dp.id)
 
     # 2. create domains
-    for d in delta.created_domains:
-        domain_to_create = Domain(name=d.name, description=d.desc, schemaLocation=d.path)
-        new_domain = dc.create(domain_to_create)
-        domain_mapping[new_domain.name] = new_domain.id
+    #for d in delta.created_domains:
+    #    domain_to_create = Domain(name=d.name, description=d.desc, schemaLocation=d.path)
+    #    new_domain = dc.create(domain_to_create)
+    #    domain_mapping[new_domain.name] = new_domain.id
 
     # 3. reassign products
-    for dp in delta.reassigned_products:
-        dpc.reassign(dp.id, domain_mapping[dp.domain])
+    #for dp in delta.reassigned_products:
+    #    dpc.reassign(dp.id, domain_mapping[dp.domain])
 
     # 4. delete domains
-    for d in delta.deleted_domains:
-        dc.delete(d.id)
+    #for d in delta.deleted_domains:
+    #    dc.delete(d.id)
 
     # 5. update products
     for dp in delta.updated_products:
         _upsert_data_product(dpc, dp, domain_mapping[dp.domain], dpc.update)
 
     # 6. update domains
-    for d in delta.updated_domains:
-        dc.update(Domain(id=d.id, name=d.name, description=d.desc, schemaLocation=d.path))
+    #for d in delta.updated_domains:
+    #    dc.update(Domain(id=d.id, name=d.name, description=d.desc, schemaLocation=d.path))
 
     # 7. create products
     for dp in delta.created_products:
