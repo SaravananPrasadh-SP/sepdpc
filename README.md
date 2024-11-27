@@ -8,7 +8,7 @@
 This is not part of the core Starburst product and is not covered by Starburst support agreements. 
 It is a community developed set of scripts to make your life easier when managing Starburst Enterprise  Data Products.
 
-This is a fork from https://github.com/ottensa/sepdpc adding options to filter on Data Products a domain and/or a catalog.
+This is a fork from https://github.com/ottensa/sepdpc adding options to filter Data Products on a domain and/or a catalog.
 
 ## Introduction
 This Python package is a CLI for managing Starburst Enterprise Data Products in a local repository.
