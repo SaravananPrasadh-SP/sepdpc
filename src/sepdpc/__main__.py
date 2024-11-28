@@ -13,7 +13,7 @@ from sepdpc import repository
 help_text = {
     'host': 'The host of your Starburst Enterprise instance, e.g. https://sep.example.com:8443',
     'user': 'The username you are authenticating with',
-    'token': 'The token used for authentication, "-" for no authentication',
+    'token': 'The token used for authentication, the part after "Basic" and "-" if no authentication (no password)',
     'domain': 'The domain to filter data products, "none" for no domain filter',
     'catalog': 'The catalog to filter data products, "none" for no catalog filter'
 }

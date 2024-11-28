@@ -64,7 +64,7 @@ $ sepdpc configure --help
 │ *  --user         TEXT  The username you are authenticating with          │ 
 │                         [default: None]                                   │
 │                         [required]                                        │
-│ *  --token        TEXT  The token used for authentication                 │
+│ *  --token        TEXT  The token used for authentication, after "Basic " │
 │                         [default: None]                                   │
 │                         [required]                                        │
 │ *  --catalog      TEXT  The catalog to filter on, "none" for no filter    │ 
@@ -99,7 +99,7 @@ It will download the Data Products and persist them into the given path.
 ```shell
 sepdpc generate --help     
                                                                                                                         
- Usage: sepdpc diff [OPTIONS] PATH                                                                                      
+ Usage: sepdpc generate [OPTIONS] PATH                                                                                      
                                                                                                                         
 ╭─ Arguments ───────────────────────────────────────────────────────────────╮
 │ *    path      TEXT  [default: None] [required]                           │
@@ -114,7 +114,7 @@ It will delete Data Products that are not reflected in the repository, create ne
 ```shell
 sepdpc publish --help     
                                                                                                                         
- Usage: sepdpc diff [OPTIONS] PATH                                                                                      
+ Usage: sepdpc publish [OPTIONS] PATH                                                                                      
                                                                                                                         
 ╭─ Arguments ───────────────────────────────────────────────────────────────╮
 │ *    path      TEXT  [default: None] [required]                           │
@@ -129,7 +129,7 @@ The validation will also be implicitly called before you try to publish your rep
 ```shell
 sepdpc validate --help     
                                                                                                                         
- Usage: sepdpc diff [OPTIONS] PATH                                                                                      
+ Usage: sepdpc validate [OPTIONS] PATH                                                                                      
                                                                                                                         
 ╭─ Arguments ───────────────────────────────────────────────────────────────╮
 │ *    path      TEXT  [default: None] [required]                           │
