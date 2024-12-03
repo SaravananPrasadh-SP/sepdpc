@@ -20,7 +20,7 @@ Releases are not yet available on PyPI, but you can install using pip nonetheles
 
 ```shell
 python -m pip install -U pip
-python -m pip install -U pip install git+https://github.com/victorcouste/sepdpc.git
+python -m pip install -U pip install git+https://github.com/SaravananPrasadh-SP/sepdpc.git
 ```
 
 ## Usage
