@@ -61,7 +61,8 @@ def generate(host: HostOpt, user: UserOpt, token: TokenOpt, domain: DomainOpt, c
     if token != '-': token='Basic '+token
     if insecure:
         client = SepClient(host=host, user=user, token=token, verify=False)
-    client = SepClient(host=host, user=user, token=token)
+    else:
+        client = SepClient(host=host, user=user, token=token)
     repo = repository.from_server(client, domain, catalog)
     repository.persist(repo, path)
     print('Remote repository persisted into:', path)
@@ -79,7 +80,8 @@ def diff(host: HostOpt, user: UserOpt, token: TokenOpt, domain: DomainOpt, catal
     if token != '-': token='Basic '+token
     if insecure:
         client = SepClient(host=host, user=user, token=token, verify=False)
-    client = SepClient(host=host, user=user, token=token)
+    else:
+        client = SepClient(host=host, user=user, token=token)        
     remote_repo = repository.from_server(client, domain, catalog)
     local_repo = repository.from_local(path)
     delta = repository.diff(remote_repo, local_repo)
@@ -111,7 +113,8 @@ def publish(host: HostOpt, user: UserOpt, token: TokenOpt, domain: DomainOpt, ca
     if token != '-': token='Basic '+token
     if insecure:
         client = SepClient(host=host, user=user, token=token, verify=False)
-    client = SepClient(host=host, user=user, token=token)
+    else:
+        client = SepClient(host=host, user=user, token=token)        
     local_repo = repository.from_local(path)
     repository.publish(client, domain, catalog, local_repo)
     print('Published repository from:', path)
