@@ -45,7 +45,7 @@ app = typer.Typer()
 
 
 @app.command()
-def configure(host: _opt(help_text['host']), user: _opt(help_text['user']), token: _opt(help_text['token']), domain: _opt(help_text['domain']), catalog: _opt(help_text['catalog'])):
+def configure(host: _opt(help_text['host']), user: _opt(help_text['user']), token: _opt(help_text['token']), domain: _opt(help_text['domain']), catalog: _opt(help_text['catalog']), insecure: _opt(help_text['insecure'])):
     config_path.touch(mode=0o600, exist_ok=False)
     set_key(dotenv_path=config_path, key_to_set="SEPDPC_HOST", value_to_set=host)
     set_key(dotenv_path=config_path, key_to_set="SEPDPC_USER", value_to_set=user)
