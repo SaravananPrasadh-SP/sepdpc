@@ -401,7 +401,7 @@ def publish(server_client: SepClient, domain_filter: str, catalog_filter: str, r
     domain_mapping = dict([(domain.name, domain.id) for domain in remote_repo.domains])
 
     dpc = server_client.data_product_service()
-    #dc = server_client.domain_service()
+    dc = server_client.domain_service()
 
     delta = diff(remote_repo, repo)
     
@@ -410,26 +410,26 @@ def publish(server_client: SepClient, domain_filter: str, catalog_filter: str, r
         dpc.delete(dp.id)
 
     # 2. create domains
-    #for d in delta.created_domains:
-    #    domain_to_create = Domain(name=d.name, description=d.desc, schemaLocation=d.path)
-    #    new_domain = dc.create(domain_to_create)
-    #    domain_mapping[new_domain.name] = new_domain.id
+    for d in delta.created_domains:
+       domain_to_create = Domain(name=d.name, description=d.desc, schemaLocation=d.path)
+       new_domain = dc.create(domain_to_create)
+       domain_mapping[new_domain.name] = new_domain.id
 
     # 3. reassign products
-    #for dp in delta.reassigned_products:
-    #    dpc.reassign(dp.id, domain_mapping[dp.domain])
+    for dp in delta.reassigned_products:
+       dpc.reassign(dp.id, domain_mapping[dp.domain])
 
     # 4. delete domains
-    #for d in delta.deleted_domains:
-    #    dc.delete(d.id)
+    for d in delta.deleted_domains:
+       dc.delete(d.id)
 
     # 5. update products
     for dp in delta.updated_products:
         _upsert_data_product(dpc, dp, domain_mapping[dp.domain], dpc.update)
 
     # 6. update domains
-    #for d in delta.updated_domains:
-    #    dc.update(Domain(id=d.id, name=d.name, description=d.desc, schemaLocation=d.path))
+    for d in delta.updated_domains:
+       dc.update(Domain(id=d.id, name=d.name, description=d.desc, schemaLocation=d.path))
 
     # 7. create products
     for dp in delta.created_products:
