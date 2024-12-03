@@ -16,7 +16,8 @@ help_text = {
     'token': 'The token used for authentication, the part after "Basic" and "-" if no authentication (no password)',
     'domain': 'The domain to filter data products, "none" for no domain filter',
     'catalog': 'The catalog to filter data products, "none" for no catalog filter',
-    'insecure': 'Allow insecure connections'
+    'insecure': 'Allow insecure connections',
+    'roles': 'Roles to filter data products, "*" for all roles'
 }
 
 config_path = Path.home() / '.sepdpc'
