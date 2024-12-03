@@ -2,7 +2,7 @@
 name = "sepdpc"
 version = "0.1.0"
 description = ""
-authors = ["Arne Ottens <arne.ottens@starburst.io>"]
+authors = ["Arne Ottens <arne.ottens@starburst.io>","Saravanan Prasadh <saravanan.prasadh@starburstdata.com>"]
 readme = "README.md"
 packages = [{include = "sepdpc", from = "src"}]
 
