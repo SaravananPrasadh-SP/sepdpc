@@ -66,7 +66,7 @@ def configure(host: _opt(help_text['host']), user: _opt(help_text['user']), toke
 
 
 @app.command()
-def generate(host: HostOpt, user: UserOpt, token: TokenOpt, domain: DomainOpt, catalog: CatalogOpt, path: str, \
+def generate(host: HostOpt, user: UserOpt, token: TokenOpt, path: str, domain: DomainOpt = "none", catalog: CatalogOpt = "none", \
              insecure: insecureOpt = True, roles: rolesOpt = "*", product: productOpt = "none"):
     if token != '-': token='Basic '+token
     if insecure:
@@ -86,8 +86,8 @@ def validate(path: str):
 
 
 @app.command()
-def diff(host: HostOpt, user: UserOpt, token: TokenOpt, domain: DomainOpt, catalog: CatalogOpt, path: str, \
-         insecure: insecureOpt = True, roles: rolesOpt = "*", product: productOpt = "none"):
+def diff(host: HostOpt, user: UserOpt, token: TokenOpt, path: str, domain: DomainOpt = "none", catalog: CatalogOpt = "none", \
+             insecure: insecureOpt = True, roles: rolesOpt = "*", product: productOpt = "none"):
     if token != '-': token='Basic '+token
     if insecure:
         client = SepClient(host=host, user=user, token=token, verify=False, roles=roles)
@@ -120,8 +120,8 @@ def diff(host: HostOpt, user: UserOpt, token: TokenOpt, domain: DomainOpt, catal
 
 
 @app.command()
-def publish(host: HostOpt, user: UserOpt, token: TokenOpt, domain: DomainOpt, catalog: CatalogOpt, path: str, \
-            insecure: insecureOpt = True, roles: rolesOpt = "*" , product: productOpt = "none"):
+def publish(host: HostOpt, user: UserOpt, token: TokenOpt, path: str, domain: DomainOpt = "none", catalog: CatalogOpt = "none", \
+             insecure: insecureOpt = True, roles: rolesOpt = "*", product: productOpt = "none"):
     if token != '-': token='Basic '+token
     if insecure:
         client = SepClient(host=host, user=user, token=token, verify=False, roles=roles)
