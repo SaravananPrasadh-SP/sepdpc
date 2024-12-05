@@ -16,6 +16,7 @@ help_text = {
     'token': 'The token used for authentication, the part after "Basic" and "-" if no authentication (no password)',
     'domain': 'The domain to filter data products, "none" for no domain filter',
     'catalog': 'The catalog to filter data products, "none" for no catalog filter',
+    'product': 'The product to filter data products, "none" for no product filter',
     'insecure': 'Allow insecure connections',
     'roles': 'Roles to filter data products, "*" for all roles'
 }
@@ -40,6 +41,7 @@ UserOpt = _opt(help_text['user'], 'SEPDPC_USER')
 TokenOpt = _opt(help_text['token'], 'SEPDPC_TOKEN')
 DomainOpt = _opt(help_text['domain'], 'SEPDPC_DOMAIN')
 CatalogOpt = _opt(help_text['catalog'], 'SEPDPC_CATALOG')
+productOpt = _opt(help_text['product'], 'SEPDPC_PRODUCT')
 insecureOpt = _opt(help_text['insecure'], 'SEPDPC_INSECURE')
 rolesOpt = _opt(help_text['roles'], 'SEPDPC_ROLES')
 
@@ -49,13 +51,15 @@ app = typer.Typer()
 @app.command()
 def configure(host: _opt(help_text['host']), user: _opt(help_text['user']), token: _opt(help_text['token']), \
               domain: _opt(help_text['domain']), catalog: _opt(help_text['catalog']), \
-              insecure: _opt(help_text['insecure']), roles: _opt(help_text['roles'])):
+              insecure: _opt(help_text['insecure']), roles: _opt(help_text['roles']), \
+              product: _opt(help_text['product'])):
     config_path.touch(mode=0o600, exist_ok=False)
     set_key(dotenv_path=config_path, key_to_set="SEPDPC_HOST", value_to_set=host)
     set_key(dotenv_path=config_path, key_to_set="SEPDPC_USER", value_to_set=user)
     set_key(dotenv_path=config_path, key_to_set="SEPDPC_TOKEN", value_to_set=token)
     set_key(dotenv_path=config_path, key_to_set="SEPDPC_DOMAIN", value_to_set=domain)
     set_key(dotenv_path=config_path, key_to_set="SEPDPC_CATALOG", value_to_set=catalog)
+    set_key(dotenv_path=config_path, key_to_set="SEPDPC_PRODUCT", value_to_set=product)
     set_key(dotenv_path=config_path, key_to_set="SEPDPC_INSECURE", value_to_set=insecure)
     set_key(dotenv_path=config_path, key_to_set="SEPDPC_ROLES", value_to_set=roles)
     print('Configured sepdpc')
@@ -63,13 +67,13 @@ def configure(host: _opt(help_text['host']), user: _opt(help_text['user']), toke
 
 @app.command()
 def generate(host: HostOpt, user: UserOpt, token: TokenOpt, domain: DomainOpt, catalog: CatalogOpt, path: str, \
-             insecure: insecureOpt = True, roles: rolesOpt = "*" ):
+             insecure: insecureOpt = True, roles: rolesOpt = "*", product: productOpt = "none"):
     if token != '-': token='Basic '+token
     if insecure:
         client = SepClient(host=host, user=user, token=token, verify=False, roles=roles)
     else:
         client = SepClient(host=host, user=user, token=token, verify=True, roles=roles)
-    repo = repository.from_server(client, domain, catalog)
+    repo = repository.from_server(client, domain, catalog, product)
     repository.persist(repo, path)
     print('Remote repository persisted into:', path)
 
@@ -83,13 +87,13 @@ def validate(path: str):
 
 @app.command()
 def diff(host: HostOpt, user: UserOpt, token: TokenOpt, domain: DomainOpt, catalog: CatalogOpt, path: str, \
-         insecure: insecureOpt = True, roles: rolesOpt = "*" ):
+         insecure: insecureOpt = True, roles: rolesOpt = "*", product: productOpt = "none"):
     if token != '-': token='Basic '+token
     if insecure:
         client = SepClient(host=host, user=user, token=token, verify=False, roles=roles)
     else:
         client = SepClient(host=host, user=user, token=token, verify=True, roles=roles)       
-    remote_repo = repository.from_server(client, domain, catalog)
+    remote_repo = repository.from_server(client, domain, catalog, product)
     local_repo = repository.from_local(path)
     delta = repository.diff(remote_repo, local_repo)
 
@@ -117,14 +121,14 @@ def diff(host: HostOpt, user: UserOpt, token: TokenOpt, domain: DomainOpt, catal
 
 @app.command()
 def publish(host: HostOpt, user: UserOpt, token: TokenOpt, domain: DomainOpt, catalog: CatalogOpt, path: str, \
-            insecure: insecureOpt = True, roles: rolesOpt = "*" ):
+            insecure: insecureOpt = True, roles: rolesOpt = "*" , product: productOpt = "none"):
     if token != '-': token='Basic '+token
     if insecure:
         client = SepClient(host=host, user=user, token=token, verify=False, roles=roles)
     else:
         client = SepClient(host=host, user=user, token=token, verify=True, roles=roles)   
     local_repo = repository.from_local(path)
-    repository.publish(client, domain, catalog, local_repo)
+    repository.publish(client, domain, catalog, product, local_repo)
     print('Published repository from:', path)
 
 
