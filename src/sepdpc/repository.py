@@ -394,10 +394,10 @@ def _upsert_data_product(dpc: DataProductService, product_struct: ProductStruct,
     dpc.publish(data_product.id)
 
 
-def publish(server_client: SepClient, domain_filter: str, catalog_filter: str, repo: Repository):
+def publish(server_client: SepClient, domain_filter: str, catalog_filter: str, product_filter:str, repo: Repository):
     """Auf den Server schieben"""
     validate(repo)
-    remote_repo = from_server(server_client, domain_filter, catalog_filter)
+    remote_repo = from_server(server_client, domain_filter, catalog_filter, product_filter)
 
     # mapping von domain name auf domain id
     domain_mapping = dict([(domain.name, domain.id) for domain in remote_repo.domains])
