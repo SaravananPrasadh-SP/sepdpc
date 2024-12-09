@@ -67,12 +67,24 @@ $ sepdpc configure --help
 │ *  --token        TEXT  The token used for authentication, after "Basic " │
 │                         [default: None]                                   │
 │                         [required]                                        │
-│ *  --catalog      TEXT  The catalog to filter on, "none" for no filter    │ 
+│    --catalog      TEXT  The catalog to filter on, "none" for no filter    │ 
 │                         [default: None]                                   │
-│                         [required]                                        │
-│ *  --domain       TEXT  The domain to filter on,  "none" for no filter    │
+│                         [optional]                                        │
+│    --domain       TEXT  The domain to filter on,  "none" for no filter    │
 │                         [default: None]                                   │
-│                         [required]                                        │
+│                         [optional]                                        │
+│    --product      TEXT  The data product to filter on,"none" for no filter│
+│                         [default: None]                                   │
+│                         [optional]                                        │
+│    --roles        TEXT  The role to assume,  "*" for all allowed roles    │
+│                         [default: None]                                   │
+│                         [optional]                                        │
+│    --insecure     BOOL  Allow insecure access, disable "Verify"           │
+│                         [default: False]                                  │
+│                         [optional]                                        │
+│    --includedrafts BOOL Allow draft products to be exported/included      │
+│                         [default: False]                                  │
+│                         [optional]                                        │
 │    --help               Show this message and exit.                       │
 ╰───────────────────────────────────────────────────────────────────────────╯
 ```
