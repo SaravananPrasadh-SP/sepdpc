@@ -58,6 +58,7 @@ class ProductStruct(InterstellarBaseModel):
     tags: Optional[list[str]] = None
     samples: Optional[list[SampleQuery]] = None
     datasets: list[DatasetStruct] = None
+    status: str = "DRAFT"
 
 class RepositoryDiff(BaseModel):
     deleted_domains: List[DomainStruct]
@@ -74,7 +75,7 @@ class Repository(BaseModel):
     products: List[ProductStruct]
 
 
-def from_server(server_client: SepClient, domain_filter: str, catalog_filter: str) -> Repository:
+def from_server(server_client: SepClient, domain_filter: str, catalog_filter: str, product_filter: str) -> Repository:
     """Laden der Domains und der Produkte von SEP und in die Repository Struktur bringen"""
     dpc = server_client.data_product_service()
     dc = server_client.domain_service()
@@ -89,48 +90,49 @@ def from_server(server_client: SepClient, domain_filter: str, catalog_filter: st
 
     for dp in sep_products:
 
-        if catalog_filter == "none" or dp.catalogName == catalog_filter:
+        if ((catalog_filter == "none" or dp.catalogName == catalog_filter) and
+             (domain_filter == "none" or dp.dataDomainId == domainID) and
+              (product_filter == "none" or dp.name == product_filter) and
+               (dp.status == "PUBLISHED")):
 
-            if domain_filter == "none" or dp.dataDomainId == domainID:
-
-                tags = dpc.get_tags(dp.id)
-                samples = dpc.get_samples(dp.id)
-                datasets = []
-                for view in dp.views:
-                    datasets.append(
-                        DatasetStruct(
-                            name=view.name,
-                            query=view.definitionQuery,
-                            summary=view.description,
-                            columns=view.columns
-                        )
+            tags = dpc.get_tags(dp.id)
+            samples = dpc.get_samples(dp.id)
+            datasets = []
+            for view in dp.views:
+                datasets.append(
+                    DatasetStruct(
+                        name=view.name,
+                        query=view.definitionQuery,
+                        summary=view.description,
+                        columns=view.columns
                     )
-
-                for view in dp.materializedViews:
-                    datasets.append(
-                        DatasetStruct(
-                            name=view.name,
-                            query=view.definitionQuery,
-                            summary=view.description,
-                            columns=view.columns,
-                            materialization=view.definitionProperties
-                        )
-                    )
-
-                product = ProductStruct(
-                    id=dp.id,
-                    name=dp.name,
-                    desc=dp.description,
-                    summary=dp.summary,
-                    catalog=dp.catalogName,
-                    domain=next(d.name for d in domains if d.id == dp.dataDomainId),
-                    owner=dp.owners,
-                    links=dp.relevantLinks,
-                    tags=[tag.value for tag in tags],
-                    samples=samples,
-                    datasets=datasets
                 )
-                products.append(product)
+
+            for view in dp.materializedViews:
+                datasets.append(
+                    DatasetStruct(
+                        name=view.name,
+                        query=view.definitionQuery,
+                        summary=view.description,
+                        columns=view.columns,
+                        materialization=view.definitionProperties
+                    )
+                )
+
+            product = ProductStruct(
+                id=dp.id,
+                name=dp.name,
+                desc=dp.description,
+                summary=dp.summary,
+                catalog=dp.catalogName,
+                domain=next(d.name for d in domains if d.id == dp.dataDomainId),
+                owner=dp.owners,
+                links=dp.relevantLinks,
+                tags=[tag.value for tag in tags],
+                samples=samples,
+                datasets=datasets
+            )
+            products.append(product)
 
     return Repository(domains=domains, products=products)
 
