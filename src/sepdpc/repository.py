@@ -58,7 +58,7 @@ class ProductStruct(InterstellarBaseModel):
     tags: Optional[list[str]] = None
     samples: Optional[list[SampleQuery]] = None
     datasets: list[DatasetStruct] = None
-    status: str = "DRAFT"
+    status: Optional[str] = None
 
 class RepositoryDiff(BaseModel):
     deleted_domains: List[DomainStruct]
