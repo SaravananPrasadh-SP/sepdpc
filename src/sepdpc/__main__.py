@@ -25,7 +25,7 @@ help_text = {
 config_path = Path.home() / '.sepdpc'
 
 
-def _opt(help, env=None):
+def _opt(help, env=None, inputType=str):
     config = {
         'help': help,
         'prompt': env is None
@@ -34,7 +34,7 @@ def _opt(help, env=None):
         config['envvar'] = env
     option = typer.Option(**config)
 
-    return Annotated[str, option]
+    return Annotated[inputType, option]
 
 
 HostOpt = _opt(help_text['host'], 'SEPDPC_HOST')
@@ -44,8 +44,8 @@ DomainOpt = _opt(help_text['domain'], 'SEPDPC_DOMAIN')
 CatalogOpt = _opt(help_text['catalog'], 'SEPDPC_CATALOG')
 productOpt = _opt(help_text['product'], 'SEPDPC_PRODUCT')
 rolesOpt = _opt(help_text['roles'], 'SEPDPC_ROLES')
-insecureOpt = _opt(help_text['insecure'], 'SEPDPC_INSECURE')
-includeDraftsOpt = _opt(help_text['includeDrafts'], 'SEPDPC_INCLUDE_DRAFTS')
+insecureOpt = _opt(help_text['insecure'], 'SEPDPC_INSECURE', bool)
+includeDraftsOpt = _opt(help_text['includeDrafts'], 'SEPDPC_INCLUDE_DRAFTS',bool)
 
 
 app = typer.Typer()
@@ -72,15 +72,11 @@ def configure(host: _opt(help_text['host']), user: _opt(help_text['user']), toke
 @app.command()
 def generate(host: HostOpt, user: UserOpt, token: TokenOpt, path: str, domain: DomainOpt = "none", catalog: CatalogOpt = "none", \
              insecure: insecureOpt = True, includeDrafts: includeDraftsOpt = False, roles: rolesOpt = "*", product: productOpt = "none"):
-    if token != '-': token='Basic '+token
-    if insecure:
-        client = SepClient(host=host, user=user, token=token, verify=False, roles=roles)
-    else:
-        client = SepClient(host=host, user=user, token=token, verify=True, roles=roles)
+    if token != '-': token='Basic '+token    
+    client = SepClient(host=host, user=user, token=token, verify=insecure, roles=roles)
     repo = repository.from_server(client, domain, catalog, product, includeDrafts)
     repository.persist(repo, path)
     print('Remote repository persisted into:', path)
-
 
 @app.command()
 def validate(path: str):
@@ -93,10 +89,7 @@ def validate(path: str):
 def diff(host: HostOpt, user: UserOpt, token: TokenOpt, path: str, domain: DomainOpt = "none", catalog: CatalogOpt = "none", \
              insecure: insecureOpt = True, includeDrafts: includeDraftsOpt = False, roles: rolesOpt = "*", product: productOpt = "none"):
     if token != '-': token='Basic '+token
-    if insecure:
-        client = SepClient(host=host, user=user, token=token, verify=False, roles=roles)
-    else:
-        client = SepClient(host=host, user=user, token=token, verify=True, roles=roles)       
+    client = SepClient(host=host, user=user, token=token, verify=insecure, roles=roles)      
     remote_repo = repository.from_server(client, domain, catalog, product, includeDrafts)
     local_repo = repository.from_local(path)
     delta = repository.diff(remote_repo, local_repo)
@@ -127,10 +120,7 @@ def diff(host: HostOpt, user: UserOpt, token: TokenOpt, path: str, domain: Domai
 def publish(host: HostOpt, user: UserOpt, token: TokenOpt, path: str, domain: DomainOpt = "none", catalog: CatalogOpt = "none", \
              insecure: insecureOpt = True, includeDrafts: includeDraftsOpt = False, roles: rolesOpt = "*", product: productOpt = "none"):
     if token != '-': token='Basic '+token
-    if insecure:
-        client = SepClient(host=host, user=user, token=token, verify=False, roles=roles)
-    else:
-        client = SepClient(host=host, user=user, token=token, verify=True, roles=roles)   
+    client = SepClient(host=host, user=user, token=token, verify=insecure, roles=roles)  
     local_repo = repository.from_local(path)
     repository.publish(client, domain, catalog, product, includeDrafts, local_repo)
     print('Published repository from:', path)
