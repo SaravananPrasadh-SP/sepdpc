@@ -17,9 +17,9 @@ help_text = {
     'domain': 'The domain to filter data products, "none" for no domain filter',
     'catalog': 'The catalog to filter data products, "none" for no catalog filter',
     'product': 'The product to filter data products, "none" for no product filter',
-    'insecure': 'Allow insecure connections, e.g --insecure=true',
+    'insecure': 'Allow insecure connections',
     'roles': 'Roles to filter data products, "*" for all roles',
-    'includeDrafts': 'Boolean toggle to include draft data products e.g --includeDrafts=true'
+    'includeDrafts': 'Boolean toggle to include draft data products'
 }
 
 config_path = Path.home() / '.sepdpc'
