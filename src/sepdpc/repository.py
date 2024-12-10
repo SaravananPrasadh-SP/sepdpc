@@ -91,10 +91,9 @@ def from_server(server_client: SepClient, domain_filter: str, catalog_filter: st
     for dp in sep_products:
 
         if ((catalog_filter == "none" or dp.catalogName == catalog_filter) and
-             (domain_filter == "none" or dp.dataDomainId == domainID) and
-              (product_filter == "none" or dp.name == product_filter) and
-               (dp.status == "PUBLISHED" or include_drafts)):
-
+            (domain_filter == "none" or dp.dataDomainId == domainID) and
+            (product_filter == "none" or dp.name == product_filter) and
+            (dp.status == "PUBLISHED" or include_drafts)):
             tags = dpc.get_tags(dp.id)
             samples = dpc.get_samples(dp.id)
             datasets = []
