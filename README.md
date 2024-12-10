@@ -79,7 +79,7 @@ $ sepdpc configure --help
 │    --roles        TEXT  The role to assume,  "*" for all allowed roles    │
 │                         [default: None]                                   │
 │                         [optional]                                        │
-│    --insecure     BOOL  Allow insecure access, disable "Verify"           │
+│    --secure       BOOL  Allow insecure access, disable "Verify"           │
 │                         [default: False]                                  │
 │                         [optional]                                        │
 │    --includedrafts BOOL Allow draft products to be exported/included      │
